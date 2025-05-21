@@ -1,0 +1,3 @@
+; Wordfence WAF - Disabled
+; auto_prepend_file = "/usr/local/var/www/meraki/wordfence-waf.php"
+; END Wordfence WAF 

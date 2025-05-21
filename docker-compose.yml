@@ -2,23 +2,26 @@ version: '3'
 
 services:
   wordpress:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: wordpress:php8.2-fpm
     container_name: meraki_wordpress
     restart: always
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       - WORDPRESS_DB_HOST=mysql
       - WORDPRESS_DB_NAME=merakiweddingplanner
       - WORDPRESS_DB_USER=merakiwp
       - WORDPRESS_DB_PASSWORD=Scrap-layup-7dipped
     volumes:
-      - ./:/var/www/html
+      - wordpress_data:/var/www/html
       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - meraki_network
+    command: >
+      bash -c "cp -rn /usr/src/wordpress/* /var/www/html/ 
+      && chown -R www-data:www-data /var/www/html 
+      && php-fpm"
 
   nginx:
     image: nginx:alpine
@@ -28,7 +31,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./:/var/www/html
+      - wordpress_data:/var/www/html
       - ./nginx:/etc/nginx/conf.d
     depends_on:
       - wordpress
@@ -47,11 +50,17 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./merakiweddingplanner-com.sql:/docker-entrypoint-initdb.d/merakiweddingplanner-com.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "merakiwp", "-p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - meraki_network
 
 volumes:
   mysql_data:
+  wordpress_data:
 
 networks:
   meraki_network:
