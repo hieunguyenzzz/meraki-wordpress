@@ -1,0 +1,13 @@
+.git
+.gitignore
+.DS_Store
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+*.sql
+*.sql.gz
+nginx/
+wp-content/cache/
+wp-content/wflogs/
+wp-content/uploads/ 

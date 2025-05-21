@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: meraki_wordpress
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      - WORDPRESS_DB_HOST=mysql
+      - WORDPRESS_DB_NAME=merakiweddingplanner
+      - WORDPRESS_DB_USER=merakiwp
+      - WORDPRESS_DB_PASSWORD=Scrap-layup-7dipped
+    volumes:
+      - ./:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    networks:
+      - meraki_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: meraki_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - wordpress
+    networks:
+      - meraki_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: meraki_mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: merakiweddingplanner
+      MYSQL_USER: merakiwp
+      MYSQL_PASSWORD: Scrap-layup-7dipped
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./merakiweddingplanner-com.sql:/docker-entrypoint-initdb.d/merakiweddingplanner-com.sql
+    networks:
+      - meraki_network
+
+volumes:
+  mysql_data:
+
+networks:
+  meraki_network:
+    driver: bridge 
