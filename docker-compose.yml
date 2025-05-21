@@ -27,9 +27,6 @@ services:
     image: nginx:alpine
     container_name: meraki_nginx
     restart: always
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - wordpress_data:/var/www/html
       - ./nginx:/etc/nginx/conf.d
